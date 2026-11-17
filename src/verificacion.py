@@ -93,10 +93,10 @@ class VerificadorNumerico:
             val_e = self.x_exacto_dec[i]
             err_rel = float(abs(val_c - val_e) / abs(val_e))
             if err_rel == 0.0:
-                digitos = 16
+                digitos = self.digitos_correctos(0.0)
                 bits_perdidos = 0.0
             else:
-                digitos = max(0, min(16, int(math.floor(-math.log10(err_rel) + 0.3))))
+                digitos = self.digitos_correctos(err_rel)
                 bits_perdidos = max(0.0, math.log2(err_rel / eps_maq))
             repr_defendible = f"{float(x_calc[i]):.{max(1, digitos)}g}"
             resultados.append(
@@ -130,6 +130,49 @@ class VerificadorNumerico:
             "error_rel_inicial": err_ini,
             "error_rel_refinado": err_ref,
         }
+
+    @staticmethod
+    def digitos_correctos(err_rel: float, maximo: int = 15) -> int:
+        """Dígitos significativos correctos, con definición conservadora.
+
+        Se toma la parte entera de -log10(error relativo), sin redondear hacia
+        arriba: un error de 1.6e-12 respalda 11 dígitos, no 12.
+        """
+        if err_rel <= 0.0:
+            return maximo
+        return max(0, min(maximo, int(math.floor(-math.log10(err_rel)))))
+
+    def ejecutar_refinamiento_multiple(
+        self,
+        solver: EliminacionGaussiana,
+        res_gauss: Dict[str, Any],
+        max_iter: int = 3,
+    ) -> Dict[str, Any]:
+        """Refinamiento iterativo de varias pasadas reutilizando PA = LU.
+
+        En cada pasada: r = b - A x en precisión extendida (80 dígitos), se
+        resuelve A d = r con L y U ya calculadas (sin refactorizar) y x <- x + d.
+        Devuelve una fila por pasada (la 0 es la solución sin refinar).
+        """
+        x = res_gauss["x"].copy()
+        filas: List[Dict[str, Any]] = []
+        for k in range(max_iter + 1):
+            r_dec, norma_r = self.calcular_residuo_extendido(x)
+            err = self.calcular_error_relativo_norma2(x)
+            fila: Dict[str, Any] = {
+                "iteracion": k,
+                "norma_inf_residuo": norma_r,
+                "error_relativo": err,
+                "norma_inf_correccion": None,
+                "x": x.copy(),
+            }
+            if k < max_iter:
+                r_float = np.array([float(r) for r in r_dec], dtype=np.float64)
+                delta = solver.resolver_con_lu(res_gauss, r_float)
+                fila["norma_inf_correccion"] = float(np.max(np.abs(delta)))
+                x = x + delta
+            filas.append(fila)
+        return {"iteraciones": filas, "x_final": filas[-1]["x"]}
 
     def analizar_condicionamiento_y_dependencia(self) -> Dict[str, Any]:
         """Calcula condicionamiento, determinante y la casi dependencia de la fila 7."""
