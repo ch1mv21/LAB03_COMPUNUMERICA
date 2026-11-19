@@ -5,7 +5,7 @@
 - **Estudiante(s):** Jose Herrera, Manuel Soto — Sección: 1
 - **Asignatura:** Computación Numérica (INF-321), Ingeniería Civil Informática, UCM
 - **Fecha:** 21, noviembre de 2026
-- **Repositorio:** https://github.com/ch1mv21/LAB03_COMPUNUMERICA
+- **Repositorio:** https://github.com/ch1mv21/cn-parcial-gauss12--Herrera-Soto-
 - **Declaración de uso de IA:** se usó un asistente de IA (Claude, de Anthropic) para revisar el código frente a la rúbrica, auditar los dígitos significativos afirmados y redactar borradores de `informe.md` y `readme.md`. 
 
 ## 2. Planteamiento
