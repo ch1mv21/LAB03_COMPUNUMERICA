@@ -1,3 +1,8 @@
+#Integrantes: Jose Herrera Manuel Soto
+#Curso: Computacion Numerica
+#Fecha: 21/11/2026
+
+
 from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from conteo import ContadorOperaciones

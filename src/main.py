@@ -1,3 +1,7 @@
+#Integrantes: Jose Herrera Manuel Soto
+#Curso: Computacion Numerica
+#Fecha: 21/11/2026
+
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 import csv
@@ -120,8 +124,11 @@ class EjecutorExperimento:
             lineas.append("")
 
             for paso_num, mat_u, vec_b, info_piv in resultado["traza_pasos"]:
-                ceros_bajo_diag = int(
-                    np.sum(np.abs(np.tril(mat_u, -1)[:, :paso_num]) == 0.0)
+                ceros_bajo_diag = sum(
+                 1
+                 for col in range(paso_num)
+                 for fila in range(col + 1, mat_u.shape[0])
+                 if mat_u[fila, col] == 0.0
                 )
                 lineas.append(
                     f"--- Paso {paso_num:02d}/11 | {info_piv} | Ceros acumulados bajo diag: {ceros_bajo_diag} ---"
@@ -167,7 +174,7 @@ class EjecutorExperimento:
             f"   - Condicionamiento Linf kappa_inf(A)     : {info_cond['cond_inf']:.6e}",
             f"   - Determinante det(A)                    : {info_cond['det_A']:.6e}",
             f"   - Cota clásica pesimista kappa_2(A)*eps  : {info_cond['cota_relativa']:.6e}",
-            f"   - Casi dependencia lineal detectada      : F7 ≈ 4.173*F3 + 582.7*F5 (||delta||_inf = {info_cond['norma_inf_perturbacion']:.6e})",
+            f"   - Casi dependencia lineal detectada      : F7 ≈ {info_cond['alpha_exacto']}*F3 + {info_cond['beta_exacto']}*F5 (||delta||_inf = {info_cond['norma_inf_perturbacion']:.6e}; ajuste MCO: alpha={info_cond['alpha_lstsq']:.6f}, beta={info_cond['beta_lstsq']:.6f})",
             "",
             "2. COMPARACIÓN DE CORRIDAS",
             "   a) Sin Pivoteo:",
@@ -256,4 +263,4 @@ class EjecutorExperimento:
 if __name__ == "__main__":
     raiz_proyecto = Path(__file__).resolve().parent.parent
     app = EjecutorExperimento(raiz_proyecto)
-    app.ejecutar()
+    app.ejecutar()  

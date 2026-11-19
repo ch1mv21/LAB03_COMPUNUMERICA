@@ -1,3 +1,8 @@
+#Integrantes: Jose Herrera Manuel Soto
+#Curso: Computacion Numerica
+#Fecha: 21/11/2026
+
+
 from decimal import Decimal, getcontext
 from fractions import Fraction
 from typing import Any, Dict, List, Tuple
@@ -96,9 +101,16 @@ class VerificadorNumerico:
                 digitos = 16
                 bits_perdidos = 0.0
             else:
-                digitos = max(0, min(16, int(math.floor(-math.log10(err_rel) + 0.3))))
+                # Dígitos correctos: error absoluto <= media unidad del último dígito afirmado
+                # (criterio conservador; evita afirmar un dígito que está errado en 1 unidad).
+                err_abs = abs(val_c - val_e)
+                limite = (2 * err_abs).log10()
+                digitos = max(0, min(16, int(math.floor(val_e.adjusted() + 1 - limite))))
                 bits_perdidos = max(0.0, math.log2(err_rel / eps_maq))
-            repr_defendible = f"{float(x_calc[i]):.{max(1, digitos)}g}"
+            d_rep = max(1, digitos)
+            repr_defendible = format(
+                val_c.quantize(Decimal(1).scaleb(val_e.adjusted() - d_rep + 1)), "f"
+            )
             resultados.append(
                 (i + 1, float(x_calc[i]), val_e, err_rel, digitos, bits_perdidos, repr_defendible)
             )

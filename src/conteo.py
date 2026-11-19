@@ -1,3 +1,8 @@
+#Integrantes: Jose Herrera Manuel Soto
+#Curso: Computacion Numerica
+#Fecha: 21/11/2026
+
+
 from typing import Dict, List
 
 
@@ -72,7 +77,15 @@ class ContadorOperaciones:
 
     def generar_tabla_markdown(self, n: int = 12) -> str:
         cota_teorica_cubica = (2.0 * (n ** 3)) / 3.0
-        cota_referencia = 1486
+        # Conteo mínimo teórico de eliminación + sustitución regresiva (incluye b):
+        #   mul/div = n^3/3 + n^2 - n/3 ;  sum/res = n^3/3 + n^2/2 - 5n/6
+        minimo_mul_div = round(n ** 3 / 3 + n ** 2 - n / 3)
+        minimo_sum_res = round(n ** 3 / 3 + n ** 2 / 2 - 5 * n / 6)
+        cota_minima = minimo_mul_div + minimo_sum_res
+        extra_subdiag = n * (n - 1)  # 2 flops por cada una de las n(n-1)/2 posiciones
+        cota_referencia = 1486  # cota de la prueba (T1); el conteo real sale del contador
+        con_sub = self.total_flops if self.incluir_cero_subdiagonal else self.total_flops + extra_subdiag
+        sin_sub = self.total_flops - extra_subdiag if self.incluir_cero_subdiagonal else self.total_flops
 
         lineas: List[str] = [
             "# Reporte de Costo Operacional (FLOPs)",
@@ -81,7 +94,7 @@ class ContadorOperaciones:
             "- **1 FLOP** equivale a una operación aritmética elemental en punto flotante (`+`, `-`, `*`, `/`).",
             "- **Reutilización de multiplicadores:** Cada multiplicador $m_{ik} = a_{ik}^{(k)} / a_{kk}^{(k)}$ se calcula **una única vez por fila** y se reutiliza en toda la fila y en $b$.",
             "- **Barrido triangular:** En el paso $k$, las columnas previas ($j < k$) ya anuladas nunca se tocan. El barrido actualiza la fila desde la columna $k$ hasta $n$, más $b_i$.",
-            "- **Omisión algebraica del cero subdiagonal:** Si se asigna `A[i, k] = 0.0` sin evaluar `A[i, k] - m * A[k, k]`, se ahorran exactamente 66 multiplicaciones y 66 restas (pasando de **1486 FLOPs** a **1354 FLOPs**).",
+            "- **Omisión algebraica del cero subdiagonal:** Si se asigna `A[i, k] = 0.0` sin evaluar `A[i, k] - m * A[k, k]`, se ahorran exactamente 66 multiplicaciones y 66 restas (pasando de **1486 FLOPs** a **1354 FLOPs**, que es el mínimo teórico).",
             "- **Sobrecosto de estabilidad (pivoteo):** Las comparaciones, cocientes de escala $|a_{ik}|/s_i$ e intercambios de filas se registran en contadores separados.",
             "",
             f"## 2. Desglose Paso a Paso ({self.estrategia})",
@@ -105,10 +118,11 @@ class ContadorOperaciones:
             "",
             "## 3. Comparación con Cotas de Referencia",
             f"- **Término dominante asintótico ($2n^3/3$ para $n={n}$):** {cota_teorica_cubica:.2f} flops (solo eliminación de $A$).",
-            f"- **Cota mínima alcanzable de referencia (incluyendo $b$ y sustitución regresiva):** {cota_referencia} flops.",
-            f"- **FLOPs contabilizados (con cálculo explícito de subdiagonal):** {self.total_flops} flops (desviación: {abs(self.total_flops - cota_referencia) / cota_referencia * 100:.2f} %).",
-            f"- **FLOPs netos sin operar la columna subdiagonal ($1486 - 132$):** {self.total_flops - 132 if self.incluir_cero_subdiagonal else self.total_flops} flops.",
-            f"- **Comparaciones iniciales para vector de escalas $s_i$:** {self.comparaciones_escala_inicial} comparaciones.",
+            f"- **Cota de referencia de la prueba (eliminación densa, barrido desde la columna $k$, incluye $b$ y sustitución regresiva):** {cota_referencia} flops; con pivoteo parcial, {cota_referencia} flops + {n * (n - 1) // 2} comparaciones.",
+            f"- **Flops contados por el instrumento (esta corrida):** {con_sub} flops → desviación {abs(con_sub - cota_referencia) / cota_referencia * 100:.2f} % respecto de la cota (tolerancia ±10 %: [{cota_referencia * 0.9:.0f}, {cota_referencia * 1.1:.0f}]).",
+            f"- **Comparaciones de búsqueda de pivote contadas:** {self.total_comparaciones} (cota: {n * (n - 1) // 2}); se reportan aparte como sobrecosto de estabilidad.",
+            f"- **Mínimo estricto si la subdiagonal se asigna a 0 sin operar:** {minimo_mul_div} mult./div. + {minimo_sum_res} sumas/restas = **{cota_minima} flops** (fórmulas $n^3/3+n^2-n/3$ y $n^3/3+n^2/2-5n/6$); el barrido desde la columna $k$ agrega {extra_subdiag} flops ({extra_subdiag // 2} mult. + {extra_subdiag // 2} restas). Ambos conteos están dentro de ±10 % de la cota.",
+            f"- **Comparaciones iniciales para el vector de escalas $s_i$:** {self.comparaciones_escala_inicial} comparaciones (aparte; no son flops aritméticos).",
             "",
         ])
         return "\n".join(lineas)
