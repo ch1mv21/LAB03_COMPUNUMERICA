@@ -4,7 +4,7 @@ Resuelve un sistema lineal denso mal condicionado de 12 incógnitas con eliminac
 
 ## Autoría y asignatura
 
-[COMPLETAR nombre(s)] — Computación Numérica (INF-321), Ingeniería Civil Informática, Universidad Católica del Maule. Prueba Parcial «El pivote», noviembre de 2026.
+Jose Herrera, Manuel Soto — Computación Numérica (INF-321), Ingeniería Civil Informática
 
 ## Requisitos
 
