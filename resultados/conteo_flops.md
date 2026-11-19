@@ -30,5 +30,5 @@
 - **Cota de referencia de la prueba (eliminación densa, barrido desde la columna $k$, incluye $b$ y sustitución regresiva):** 1486 flops; con pivoteo parcial, 1486 flops + 66 comparaciones.
 - **Flops contados por el instrumento (esta corrida):** 1486 flops → desviación 0.00 % respecto de la cota (tolerancia ±10 %: [1337, 1635]).
 - **Comparaciones de búsqueda de pivote contadas:** 66 (cota: 66); se reportan aparte como sobrecosto de estabilidad.
-- **Mínimo estricto si la subdiagonal se asigna a 0 sin operar:** 716 mult./div. + 638 sumas/restas = **1354 flops** (fórmulas $n^3/3+n^2-n/3$ y $n^3/3+n^2/2-5n/6$); el barrido desde la columna $k$ agrega 132 flops (66 mult. + 66 restas). Ambos conteos están dentro de ±10 % de la cota.
+- **Mínimo medido (segunda corrida instrumentada, subdiagonal asignada a 0 sin operar):** 716 mult./div. + 638 sumas/restas = **1354 flops**; coincide con las fórmulas $n^3/3+n^2-n/3$ y $n^3/3+n^2/2-5n/6$ (716 + 638 = 1354). El barrido desde la columna $k$ agrega 132 flops.
 - **Comparaciones iniciales para el vector de escalas $s_i$:** 132 comparaciones (aparte; no son flops aritméticos).
