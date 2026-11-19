@@ -3,7 +3,7 @@
 #Fecha: 21/11/2026
 
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 class ContadorOperaciones:
@@ -75,7 +75,9 @@ class ContadorOperaciones:
     def total_divisiones_escala(self) -> int:
         return sum(p["divisiones_escala"] for p in self.pasos.values())
 
-    def generar_tabla_markdown(self, n: int = 12) -> str:
+    def generar_tabla_markdown(
+        self, n: int = 12, alternativo: Optional["ContadorOperaciones"] = None
+    ) -> str:
         cota_teorica_cubica = (2.0 * (n ** 3)) / 3.0
         # Conteo mínimo teórico de eliminación + sustitución regresiva (incluye b):
         #   mul/div = n^3/3 + n^2 - n/3 ;  sum/res = n^3/3 + n^2/2 - 5n/6
@@ -86,6 +88,20 @@ class ContadorOperaciones:
         cota_referencia = 1486  # cota de la prueba (T1); el conteo real sale del contador
         con_sub = self.total_flops if self.incluir_cero_subdiagonal else self.total_flops + extra_subdiag
         sin_sub = self.total_flops - extra_subdiag if self.incluir_cero_subdiagonal else self.total_flops
+
+        if alternativo is not None:
+            linea_minimo = (
+                "- **Mínimo medido (segunda corrida instrumentada, subdiagonal asignada a 0 sin operar):** "
+                f"{alternativo.total_mul_div} mult./div. + {alternativo.total_sum_res} sumas/restas = "
+                f"**{alternativo.total_flops} flops**; coincide con las fórmulas $n^3/3+n^2-n/3$ y "
+                f"$n^3/3+n^2/2-5n/6$ ({minimo_mul_div} + {minimo_sum_res} = {cota_minima}). "
+                f"El barrido desde la columna $k$ agrega {con_sub - alternativo.total_flops} flops."
+            )
+        else:
+            linea_minimo = (
+                f"- **Mínimo estricto (por fórmula) si la subdiagonal se asigna a 0 sin operar:** "
+                f"{minimo_mul_div} mult./div. + {minimo_sum_res} sumas/restas = **{cota_minima} flops**."
+            )
 
         lineas: List[str] = [
             "# Reporte de Costo Operacional (FLOPs)",
@@ -121,7 +137,7 @@ class ContadorOperaciones:
             f"- **Cota de referencia de la prueba (eliminación densa, barrido desde la columna $k$, incluye $b$ y sustitución regresiva):** {cota_referencia} flops; con pivoteo parcial, {cota_referencia} flops + {n * (n - 1) // 2} comparaciones.",
             f"- **Flops contados por el instrumento (esta corrida):** {con_sub} flops → desviación {abs(con_sub - cota_referencia) / cota_referencia * 100:.2f} % respecto de la cota (tolerancia ±10 %: [{cota_referencia * 0.9:.0f}, {cota_referencia * 1.1:.0f}]).",
             f"- **Comparaciones de búsqueda de pivote contadas:** {self.total_comparaciones} (cota: {n * (n - 1) // 2}); se reportan aparte como sobrecosto de estabilidad.",
-            f"- **Mínimo estricto si la subdiagonal se asigna a 0 sin operar:** {minimo_mul_div} mult./div. + {minimo_sum_res} sumas/restas = **{cota_minima} flops** (fórmulas $n^3/3+n^2-n/3$ y $n^3/3+n^2/2-5n/6$); el barrido desde la columna $k$ agrega {extra_subdiag} flops ({extra_subdiag // 2} mult. + {extra_subdiag // 2} restas). Ambos conteos están dentro de ±10 % de la cota.",
+            linea_minimo,
             f"- **Comparaciones iniciales para el vector de escalas $s_i$:** {self.comparaciones_escala_inicial} comparaciones (aparte; no son flops aritméticos).",
             "",
         ])
