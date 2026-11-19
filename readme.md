@@ -14,6 +14,11 @@ Jose Herrera, Manuel Soto — Computación Numérica (INF-321), Ingeniería Civi
 ## Ejecución
 
 ```bash
+git clone https://github.com/ch1mv21/cn-parcial-gauss12--Herrera-Soto-.git
+cd cn-parcial-gauss12--Herrera-Soto-
+python -m venv .venv
+# Windows: .venv\Scripts\activate     Linux/macOS: source .venv/bin/activate
+pip install -r requirements.txt
 python src/main.py
 ```
 
@@ -52,3 +57,6 @@ informe.md    informe técnico y análisis de error
 
 Análisis completo en [informe.md](informe.md).
 
+## Licencia y uso académico
+
+Trabajo académico de la asignatura Computación Numérica (Universidad Católica del Maule). Uso exclusivamente educativo; no se concede licencia de reutilización o redistribución.

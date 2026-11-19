@@ -12,7 +12,7 @@
 
 Se resuelve `Ax = b` con A densa de 12×12 (144 valores no nulos, ingresados con todas sus cifras) y b con 20 dígitos significativos, sin truncar. Tres rasgos lo hacen costoso:
 
-1. **Escalas de fila incompatibles.** El mayor valor absoluto por fila va de ~10⁻⁵ (F1, F5, F9) a ~10⁶ (F6, 9.67·10⁵). Al restar un múltiplo de una fila grande a una pequeña, los bits bajos del operando pequeño salen de los 53 bits de mantisa.
+1. **Escalas de fila incompatibles.** El mayor valor absoluto por fila va de ≈ 10⁻⁴ (F1, F5 y F9, entre 8.05·10⁻⁵ y 9.96·10⁻⁵) a ≈ 10⁶ (F6, 9.67·10⁵). Al restar un múltiplo de una fila grande a una pequeña, los bits bajos del operando pequeño salen de los 53 bits de mantisa.
 2. **Pivote inicial minúsculo.** a₁₁ = 1.3407·10⁻⁸ y a₂₁/a₁₁ ≈ 8.9·10¹¹.
 3. **Casi dependencia lineal.** F7 ≈ 4.173·F3 + 582.7·F5 con ‖δ‖∞ = 2·10⁻⁴ (el ajuste por mínimos cuadrados da α = 4.177, β = 583.25). Esto eleva κ₂(A) ≈ 3.08·10¹³ sin hacer singular la matriz (det ≈ 1.36·10⁹).
 
@@ -44,7 +44,7 @@ Se resuelve `Ax = b` con A densa de 12×12 (144 valores no nulos, ingresados con
 
 - **Total: 1486 flops** (782 mult./div. + 704 sumas/restas). La cota de la prueba para eliminación densa es ≈ 1486: desviación 0.00 % (dentro de ±10 %).
 - **Sobrecosto de estabilidad (aparte):** 66 comparaciones de búsqueda (cota: 66), 132 comparaciones iniciales para los `sᵢ`, 77 cocientes de escala y 8 intercambios de filas.
-- El barrido desde la columna k incluye operar el elemento que se anula (132 flops: 66 × + 66 −). Si se asigna 0 directamente se llega al mínimo estricto de 1354 flops (716 + 638); ambos valores están dentro de ±10 % de la cota. El término dominante 2n³/3 vale 1152 para n = 12 y solo cubre la eliminación de A.
+- El barrido desde la columna k incluye operar el elemento que se anula (132 flops: 66 × + 66 −). Si se asigna 0 directamente, una segunda corrida instrumentada mide el mínimo estricto de 1354 flops (716 + 638); ambos valores están dentro de ±10 % de la cota. El término dominante 2n³/3 vale 1152 para n = 12 y solo cubre la eliminación de A.
 
 ## 5. Análisis de mantisa y pivoteo
 
@@ -103,4 +103,4 @@ Con pivoteo se defienden 9–13 dígitos por incógnita; sin pivoteo, 7–10. Tr
 - **Python:** 3.12.3 (verificado; el código requiere ≥ 3.10) — **NumPy:** 2.5.4 (`requirements.txt`); `decimal` y `fractions` de la biblioteca estándar.
 - **Comando:** `pip install -r requirements.txt` y luego `python src/main.py`; regenera los 4 archivos de `resultados/`.
 - κ₂ puede variar desde la 6.ª cifra según la versión de LAPACK; el resto es reproducible.
-- **Fuentes:** enunciado de la prueba parcial «El pivote» (UCM, noviembre de 2026); Burden y Faires, *Análisis Numérico*; Golub y Van Loan, *Matrix Computations*; Higham, *Accuracy and Stability of Numerical Algorithms* (referencias generales; [COMPLETAR/ELIMINAR las que no consultó]).
+- **Fuentes:** enunciado de la prueba parcial «El pivote» (UCM, noviembre de 2026); documentación de NumPy y de los módulos `fractions` y `decimal` de la biblioteca estándar de Python.

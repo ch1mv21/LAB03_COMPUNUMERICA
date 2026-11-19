@@ -3,11 +3,11 @@ VERIFICACIÓN INDEPENDIENTE EN PRECISIÓN EXTENDIDA (80 DÍGITOS DECIMALES)
 ================================================================================
 
 1. RESUMEN DE ESTABILIDAD, ERROR RELATIVO Y MANTISA
-   - Condicionamiento L2 kappa_2(A)         : 3.084733e+13
+   - Condicionamiento L2 kappa_2(A)         : 3.084744e+13
    - Condicionamiento Linf kappa_inf(A)     : 5.367827e+13
    - Determinante det(A)                    : 1.364551e+09
-   - Cota clásica pesimista kappa_2(A)*eps  : 6.849482e-03
-   - Casi dependencia lineal detectada      : F7 ≈ 4.173*F3 + 582.7*F5 (||delta||_inf = 2.000000e-04)
+   - Cota clásica pesimista kappa_2(A)*eps  : 6.849507e-03
+   - Casi dependencia lineal detectada      : F7 ≈ 4.173*F3 + 582.7*F5 (||delta||_inf = 2.000000e-04; ajuste MCO: alpha=4.177250, beta=583.246740)
 
 2. COMPARACIÓN DE CORRIDAS
    a) Sin Pivoteo:
@@ -25,8 +25,8 @@ VERIFICACIÓN INDEPENDIENTE EN PRECISIÓN EXTENDIDA (80 DÍGITOS DECIMALES)
       * Norma infinito ||r||_inf : 2.290876e-10
 
    c) Control con Biblioteca (numpy.linalg.solve):
-      * Error relativo ||dx||/||x||: 5.994683e-13
-      * Norma infinito ||r||_inf : 8.887819e-11
+      * Error relativo ||dx||/||x||: 2.926926e-13
+      * Norma infinito ||r||_inf : 7.756087e-11
 
 3. REFINAMIENTO ITERATIVO (1 PASADA REUTILIZANDO PA = LU)
    - Norma infinito del residuo antes   ||r^(0)||_inf : 2.290876e-10

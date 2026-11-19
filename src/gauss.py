@@ -74,6 +74,7 @@ class EliminacionGaussiana:
         multiplicador_max = 0.0
         pivote_minimo = float("inf")
         traza_pasos: List[Tuple[int, np.ndarray, np.ndarray, str]] = []
+        multiplicadores_pasos: List[List[float]] = []
 
         # Fase 1: Eliminación hacia adelante (11 pasos para n = 12)
         for k in range(self.n - 1):
@@ -137,8 +138,10 @@ class EliminacionGaussiana:
             pivote_minimo = min(pivote_minimo, abs(pivote_actual))
 
             # Eliminación bajo la diagonal en la columna k
+            mults_paso: List[float] = []
             for i in range(k + 1, self.n):
                 m_ik = U[i, k] / pivote_actual
+                mults_paso.append(float(m_ik))
                 contador.registrar_mul_div(nombre_paso, 1)
                 L[i, k] = m_ik
 
@@ -165,6 +168,7 @@ class EliminacionGaussiana:
                 max_historico_U = max_paso
 
             traza_pasos.append((k + 1, U.copy(), b_mod.copy(), detalle_pivote))
+            multiplicadores_pasos.append(mults_paso)
 
         pivote_minimo = min(pivote_minimo, abs(U[self.n - 1, self.n - 1]))
         factor_crecimiento = max_historico_U / max_inicial_A
@@ -185,6 +189,7 @@ class EliminacionGaussiana:
             "max_historico_U": max_historico_U,
             "pivote_minimo": pivote_minimo,
             "traza_pasos": traza_pasos,
+            "multiplicadores_pasos": multiplicadores_pasos,
             "contador": contador,
         }
 

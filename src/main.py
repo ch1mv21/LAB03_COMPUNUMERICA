@@ -123,7 +123,9 @@ class EjecutorExperimento:
             )
             lineas.append("")
 
-            for paso_num, mat_u, vec_b, info_piv in resultado["traza_pasos"]:
+            for idx_paso, (paso_num, mat_u, vec_b, info_piv) in enumerate(
+                resultado["traza_pasos"]
+            ):
                 ceros_bajo_diag = sum(
                  1
                  for col in range(paso_num)
@@ -133,11 +135,17 @@ class EjecutorExperimento:
                 lineas.append(
                     f"--- Paso {paso_num:02d}/11 | {info_piv} | Ceros acumulados bajo diag: {ceros_bajo_diag} ---"
                 )
+                lineas.append(
+                    "Multiplicadores m(i,k) de este paso (filas ya intercambiadas, 17 cifras):"
+                )
+                for desplaz, m_ik in enumerate(resultado["multiplicadores_pasos"][idx_paso]):
+                    lineas.append(f"   m({paso_num + 1 + desplaz:02d},{paso_num:02d}) = {m_ik:+.16e}")
+                lineas.append("Matriz [A | b] tras el paso (17 cifras; los elementos anulados se fijan en 0):")
                 for i in range(mat_u.shape[0]):
                     fila_str = " ".join(
-                        f"{mat_u[i, j]:13.5e}" for j in range(mat_u.shape[1])
+                        f"{mat_u[i, j]:+.16e}" for j in range(mat_u.shape[1])
                     )
-                    lineas.append(f"F{i + 1:02d}: [{fila_str} | {vec_b[i]:14.6e}]")
+                    lineas.append(f"F{i + 1:02d}: [{fila_str} | {vec_b[i]:+.16e}]")
                 lineas.append("")
 
         ruta_salida.write_text("\n".join(lineas), encoding="utf-8")
@@ -226,6 +234,11 @@ class EjecutorExperimento:
             estrategia="escalado", incluir_cero_subdiagonal=True
         )
 
+        # Segunda corrida instrumentada: subdiagonal asignada a 0 sin operar (mínimo medido)
+        res_minimo = solver.resolver(
+            estrategia="escalado", incluir_cero_subdiagonal=False
+        )
+
         verificador = VerificadorNumerico(a_str, b_str)
         refinamiento = verificador.ejecutar_refinamiento_iterativo(
             solver, res_escalado
@@ -236,7 +249,9 @@ class EjecutorExperimento:
         self.exportar_solucion_csv(verificador, res_escalado, res_sin_piv)
         self.exportar_traza_eliminacion(res_escalado, res_sin_piv)
         (self.dir_resultados / "conteo_flops.md").write_text(
-            res_escalado["contador"].generar_tabla_markdown(n=12), encoding="utf-8"
+            res_escalado["contador"].generar_tabla_markdown(
+                n=12, alternativo=res_minimo["contador"]
+            ), encoding="utf-8"
         )
         self.exportar_residuo_txt(
             verificador,
