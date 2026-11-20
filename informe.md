@@ -4,7 +4,7 @@
 
 - **Estudiante(s):** Jose Herrera, Manuel Soto — Sección: 1
 - **Asignatura:** Computación Numérica (INF-321), Ingeniería Civil Informática, UCM
-- **Fecha:** 21, noviembre de 2026
+- **Fecha:** 21 de noviembre de 2026
 - **Repositorio:** https://github.com/ch1mv21/cn-parcial-gauss12--Herrera-Soto-
 - **Declaración de uso de IA:** se usó un asistente de IA (Claude, de Anthropic) para revisar el código frente a la rúbrica, auditar los dígitos significativos afirmados y redactar borradores de `informe.md` y `readme.md`. 
 
@@ -90,7 +90,7 @@ Con pivoteo se defienden 9–13 dígitos por incógnita; sin pivoteo, 7–10. Tr
 
 - **Residuo en precisión extendida** (80 dígitos decimales, `decimal`): ‖r‖∞ = 2.29·10⁻¹⁰ con pivoteo escalado y 1.77·10⁻⁷ sin pivoteo (vector completo en `resultados/residuo.txt`).
 - **Refinamiento iterativo** (1 pasada, reutilizando `PA = LU`): el error relativo baja de 2.70·10⁻¹³ a 4.86·10⁻¹⁷. ‖r‖∞ no baja (2.29·10⁻¹⁰ → 2.60·10⁻¹⁰): tras refinar, x ya está al límite de la doble precisión y el residuo queda acotado por el redondeo de x, |rᵢ| ≲ (ε/2)·Σⱼ|aᵢⱼxⱼ| (≈ 6·10⁻¹⁰ en la fila 6, cuyas entradas son ~10⁶).
-- **Control con biblioteca** (`numpy.linalg.solve`, solo como control): error relativo 5.99·10⁻¹³ y ‖r‖∞ = 8.89·10⁻¹¹. La implementación propia con pivoteo escalado tiene menor error relativo (2.70·10⁻¹³).
+- **Control con biblioteca** (numpy.linalg.solve, solo como control): error relativo 2.93·10⁻¹³ y ‖r‖∞ = 7.76·10⁻¹¹ en la corrida final. Estas cifras dependen de la implementación LAPACK de cada plataforma (en otra máquina se obtuvo 5.99·10⁻¹³ y 8.89·10⁻¹¹). La implementación propia con pivoteo escalado tiene error relativo de 2.70·10⁻¹³, comparable o menor que el del control.
 
 ## 9. Conclusiones
 
@@ -100,7 +100,7 @@ Con pivoteo se defienden 9–13 dígitos por incógnita; sin pivoteo, 7–10. Tr
 
 ## 10. Reproducibilidad
 
-- **Python:** 3.12.3 (verificado; el código requiere ≥ 3.10) — **NumPy:** 2.5.4 (`requirements.txt`); `decimal` y `fractions` de la biblioteca estándar.
+- **Python:** 3.13.14 (verificado; el código requiere ≥ 3.10) — **NumPy:** 2.5.4 (`requirements.txt`); `decimal` y `fractions` de la biblioteca estándar.
 - **Comando:** `pip install -r requirements.txt` y luego `python src/main.py`; regenera los 4 archivos de `resultados/`.
 - κ₂ puede variar desde la 6.ª cifra según la versión de LAPACK; el resto es reproducible.
 - **Fuentes:** enunciado de la prueba parcial «El pivote» (UCM, noviembre de 2026); documentación de NumPy y de los módulos `fractions` y `decimal` de la biblioteca estándar de Python.

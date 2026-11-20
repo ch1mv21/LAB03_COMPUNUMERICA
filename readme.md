@@ -50,7 +50,7 @@ informe.md    informe técnico y análisis de error
 | x11 | 0.0518736294 |
 | x12 | -1.084937162 |
 
-- **Flops (pivoteo escalado):** 1486 (+ 66 comparaciones de búsqueda de pivote)
+- **Flops (pivoteo escalado):** 1486
 - **‖r‖∞ (precisión extendida, solución sin refinar):** 2.29·10⁻¹⁰ (tras refinar: 2.60·10⁻¹⁰, ver informe)
 
 ## Informe

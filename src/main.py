@@ -63,9 +63,11 @@ class EjecutorExperimento:
         verificador: VerificadorNumerico,
         res_escalado: Dict[str, Any],
         res_sin_piv: Dict[str, Any],
+        refinamiento: Dict[str, Any],
     ) -> None:
-        """Genera resultados/solucion.csv con los dígitos defendibles y métricas."""
+        """Genera resultados/solucion.csv con la solución refinada y sus dígitos defendibles."""
         ruta_salida = self.dir_resultados / "solucion.csv"
+        analisis_ref = verificador.analizar_incognitas(refinamiento["x_refinado"])
         analisis_esc = verificador.analizar_incognitas(res_escalado["x"])
         analisis_sin = verificador.analizar_incognitas(res_sin_piv["x"])
 
@@ -73,30 +75,27 @@ class EjecutorExperimento:
             escritor = csv.writer(f_out)
             escritor.writerow([
                 "incognita",
-                "valor_reportado_defendible",
+                "valor_reportado_refinado",
                 "digitos_significativos_afirmados",
-                "valor_doble_precision_pivoteo_escalado",
-                "error_relativo_pivoteo_escalado",
-                "valor_doble_precision_sin_pivoteo",
+                "error_relativo_refinado",
+                "digitos_pivoteo_escalado_sin_refinar",
                 "digitos_sin_pivoteo",
-                "error_relativo_sin_pivoteo",
                 "solucion_exacta_referencia",
             ])
-            for (idx, val_e, exacto, err_e, dig_e, _, repr_def), (
-                _, val_s, _, err_s, dig_s, _, _
-            ) in zip(analisis_esc, analisis_sin):
+            for (idx, _, exacto, err_r, dig_r, _, repr_r), (
+                _, _, _, _, dig_e, _, _
+            ), (_, _, _, _, dig_s, _, _) in zip(
+                analisis_ref, analisis_esc, analisis_sin
+            ):
                 escritor.writerow([
                     f"x_{idx}",
-                    repr_def,
+                    repr_r,
+                    dig_r,
+                    f"{err_r:.4e}",
                     dig_e,
-                    f"{val_e:.16e}",
-                    f"{err_e:.4e}",
-                    f"{val_s:.16e}",
                     dig_s,
-                    f"{err_s:.4e}",
                     f"{exacto:.10f}",
                 ])
-
     def exportar_traza_eliminacion(
         self,
         res_escalado: Dict[str, Any],
@@ -246,7 +245,7 @@ class EjecutorExperimento:
         info_cond = verificador.analizar_condicionamiento_y_dependencia()
         x_numpy = np.linalg.solve(A_np, b_np)
 
-        self.exportar_solucion_csv(verificador, res_escalado, res_sin_piv)
+        self.exportar_solucion_csv(verificador, res_escalado, res_sin_piv, refinamiento)
         self.exportar_traza_eliminacion(res_escalado, res_sin_piv)
         (self.dir_resultados / "conteo_flops.md").write_text(
             res_escalado["contador"].generar_tabla_markdown(
